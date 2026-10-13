@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#090d18">
+<title>GBA Retro Premium</title>
+<style>
+:root{color-scheme:dark;--bg:#090d18;--panel:#111a2b;--line:#29354a;--mint:#9bffb5;--text:#f3f6ff;--muted:#99a8c2;--red:#ff5f76}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;overflow:hidden}body{background:radial-gradient(ellipse at 50% -20%,#1b3150 0%,var(--bg) 62%)}
+.app{height:100dvh;display:flex;flex-direction:column;padding:12px;gap:10px;max-width:1100px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{display:flex;align-items:center;gap:10px;min-width:0}.mark{width:38px;height:38px;border-radius:12px;background:var(--mint);color:#07110b;display:grid;place-items:center;font-weight:1000;font-size:17px;box-shadow:0 0 24px #9bffb522}.brand h1{font-size:15px;letter-spacing:.11em;margin:0;font-weight:900}.brand p{margin:2px 0 0;color:var(--muted);font-size:10px;letter-spacing:.16em;text-transform:uppercase}.pill{border:1px solid #294c3a;background:#11291d;color:var(--mint);border-radius:999px;padding:6px 9px;font-size:10px;font-weight:800;white-space:nowrap}.panel{background:linear-gradient(145deg,#131e31,#0e1524);border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 32px #0003}.toolbar{padding:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.btn,select{border:1px solid #35435a;border-radius:11px;background:#1a263a;color:var(--text);padding:10px 12px;font-size:12px;font-weight:750;min-height:38px}.btn{cursor:pointer}.btn.primary{background:var(--mint);color:#09140d;border-color:var(--mint)}.btn:active{transform:scale(.98)}.btn:disabled{opacity:.4}.spacer{flex:1}.game-shell{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;padding:10px;gap:8px}.screen-frame{position:relative;flex:1;min-height:120px;border:1px solid #30405a;border-radius:12px;background:#02040a;overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 35px #000}.screen-frame:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:5;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 3px,#00000012 4px);opacity:var(--scan,0);mix-blend-mode:multiply}.screen-frame #emulator{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.screen-frame canvas{max-width:100%!important;max-height:100%!important;object-fit:contain;image-rendering:pixelated}.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;gap:8px;color:var(--muted);pointer-events:none}.empty .chip{font-size:42px;color:var(--mint);font-weight:1000;line-height:1;text-shadow:0 0 25px #9bffb533}.empty strong{font-size:15px;color:var(--text)}.empty span{font-size:11px;max-width:290px;line-height:1.5}.screen-meta{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--muted);gap:8px}.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#62718a;margin-right:6px}.dot.live{background:var(--mint);box-shadow:0 0 10px var(--mint)}.settings{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.settings label{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted)}.settings select{padding:7px 9px;min-height:32px;font-size:11px}.hint{color:var(--muted);font-size:10px;line-height:1.45;padding:0 3px}.hint a{color:var(--mint)}.hidden{display:none!important}
+@media (orientation:portrait){.app{padding:9px;gap:8px}.top{flex-shrink:0}.game-shell{min-height:0}.toolbar{gap:6px}.btn,select{padding:9px;font-size:11px}.settings{gap:6px}.settings label{font-size:9px}.brand h1{font-size:13px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="mark">GBA</div><div><h1>RETRO PREMIUM</h1><p>Handheld classics · Android</p></div></div>
+    <div class="pill">● EMULATOR CORE</div>
+  </header>
+  <section class="panel toolbar">
+    <button class="btn primary" id="openRom">＋ Abrir ROM</button>
+    <input id="romFile" type="file" accept=".gba,.zip,.7z,application/octet-stream,application/zip" class="hidden">
+    <button class="btn" id="saveState">Guardar estado</button>
+    <button class="btn" id="loadState">Cargar estado</button>
+    <button class="btn" id="fullscreen">⛶ Pantalla completa</button>
+  </section>
+  <main class="panel game-shell">
+    <div class="screen-frame" id="screenFrame">
+      <div id="emulator"></div>
+      <div class="empty" id="emptyState"><div class="chip">＋</div><strong>Tu próxima partida empieza aquí</strong><span>Abre una copia de un juego GBA que tengas. La primera carga necesita conexión a internet para descargar el núcleo de emulación.</span></div>
+    </div>
+    <div class="screen-meta"><span><i class="dot" id="statusDot"></i><span id="statusText">Esperando juego</span></span><span id="romName">SIN ROM</span></div>
+    <div class="settings">
+      <label>Imagen <select id="filter"><option value="pixel">Pixel nítido</option><option value="smooth">Suavizado</option><option value="scan">Retro CRT</option><option value="mono">Monocromo</option></select></label>
+      <label>Velocidad <select id="speed"><option value="1">1× normal</option><option value="1.5">1.5× rápida</option><option value="2">2× rápida</option></select></label>
+      <span class="spacer"></span><button class="btn" id="menuHelp">Ayuda / controles</button>
+    </div>
+  </main>
+  <div class="hint">Los archivos de juego se seleccionan desde tu dispositivo. Los estados de guardado dependen del soporte del núcleo y del almacenamiento del navegador. No se incluyen juegos con copyright.</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let currentRomUrl=null, currentRomName='', loaderScript=null, loaded=false;
+function status(msg,live=false){$('statusText').textContent=msg;$('statusDot').classList.toggle('live',live)}
+$('openRom').addEventListener('click',()=>$('romFile').click());
+$('romFile').addEventListener('change',e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!/\.(gba|zip|7z)$/i.test(file.name)){alert('Selecciona un archivo .gba o un archivo comprimido compatible.');return;}startGame(file);});
+function startGame(file){
+  if(currentRomUrl)URL.revokeObjectURL(currentRomUrl);
+  currentRomUrl=URL.createObjectURL(file);currentRomName=file.name;loaded=false;
+  $('romName').textContent=file.name.toUpperCase();$('emptyState').classList.add('hidden');status('Cargando núcleo…');
+  if(loaderScript){loaderScript.remove();loaderScript=null;}
+  $('emulator').innerHTML='';
+  // EmulatorJS loads the open-source mGBA core and provides the virtual gamepad and menu.
+  window.EJS_player='#emulator';window.EJS_core='gba';window.EJS_gameUrl=currentRomUrl;
+  window.EJS_pathtodata='https://cdn.emulatorjs.org/stable/data/';window.EJS_startOnLoaded=true;
+  window.EJS_color='';window.EJS_backgroundColor='#02040a';window.EJS_gameName=file.name.replace(/\.[^.]+$/,'');
+  window.EJS_defaultOptions={'video-smoothing':false,'save-state-location':'browser'};
+  window.EJS_onGameStart=()=>{loaded=true;status('Juego en ejecución',true);applyFilter();};
+  window.EJS_onLoad=()=>{status('Núcleo listo',true);};
+  loaderScript=document.createElement('script');loaderScript.src=window.EJS_pathtodata+'loader.js';loaderScript.onerror=()=>{status('No se pudo cargar el núcleo');alert('No se pudo descargar el núcleo de emulación. Revisa tu conexión a internet e inténtalo de nuevo.');};document.body.appendChild(loaderScript);
+}
+$('fullscreen').addEventListener('click',async()=>{try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen();}catch(e){alert('La pantalla completa puede depender de la versión de Android/WebView. La app ya oculta las barras del sistema.');}});
+function applyFilter(){const canvases=document.querySelectorAll('#emulator canvas');const v=$('filter').value;for(const c of canvases){c.style.imageRendering=v==='smooth'?'auto':'pixelated';c.style.filter=v==='mono'?'grayscale(1)':(v==='scan'?'contrast(1.12) saturate(1.2)':'none');} $('screenFrame').style.setProperty('--scan',v==='scan'?'.42':'0');}
+$('filter').addEventListener('change',applyFilter);
+function getManager(){try{return window.EJS_emulator&&window.EJS_emulator.gameManager?window.EJS_emulator.gameManager:null;}catch(e){return null;}}
+$('saveState').addEventListener('click',()=>{const gm=getManager();if(!loaded){alert('Primero abre un juego.');return;}try{if(gm&&typeof gm.saveState==='function'){gm.saveState();alert('Se solicitó guardar el estado. Comprueba el menú del emulador para confirmar.');}else{alert('Abre el menú del emulador y usa Save State / Guardar estado. La disponibilidad depende del núcleo cargado.');}}catch(e){alert('Usa Save State / Guardar estado desde el menú del emulador.');}});
+$('loadState').addEventListener('click',()=>{const gm=getManager();if(!loaded){alert('Primero abre un juego.');return;}try{if(gm&&typeof gm.loadState==='function'){gm.loadState();}else{alert('Abre el menú del emulador y usa Load State / Cargar estado.');}}catch(e){alert('Usa Load State / Cargar estado desde el menú del emulador.');}});
+$('speed').addEventListener('change',()=>{const gm=getManager(),v=Number($('speed').value);let ok=false;try{if(gm&&typeof gm.setFastForwardRatio==='function'){gm.setFastForwardRatio(v);ok=true;}else if(gm&&typeof gm.setSpeed==='function'){gm.setSpeed(v);ok=true;}}catch(e){}if(!ok&&loaded){alert('Para cambiar la velocidad si el núcleo no acepta el ajuste directo, abre el menú del emulador y busca Fast Forward / Avance rápido. El selector visual queda en '+v+'×.');}});
+$('menuHelp').addEventListener('click',()=>alert('CONTROLES\n\nEl núcleo EmulatorJS incluye controles táctiles en pantalla. Toca el menú del emulador para acceder a opciones del núcleo, guardados y asignación de botones.\n\nGuardar/cargar: menú del emulador → Save State / Load State.\nVelocidad: menú → Fast Forward, si está disponible.\n\nConsejo: gira el teléfono horizontalmente para aprovechar la pantalla.'));
+</script>
+</body>
+</html>
